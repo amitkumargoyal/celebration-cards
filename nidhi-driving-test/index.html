@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>All the Best, Nidhi</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600;700&display=swap');
+
+  :root{
+    --void: #0c0d10;
+    --void-2: #16181c;
+    --panel-a: #20242a;
+    --panel-b: #15171a;
+    --edge: #343943;
+    --mint: #6EE7B7;
+    --mint-dim: rgba(110,231,183,0.22);
+    --amber: #F2A65A;
+    --amber-dim: rgba(242,166,90,0.22);
+    --cream: #F4F0E6;
+    --slate: #9AA0AC;
+  }
+
+  *{ box-sizing: border-box; }
+
+  html,body{
+    margin:0;
+    min-height:100%;
+    background: radial-gradient(ellipse at 50% 15%, var(--void-2) 0%, var(--void) 65%);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding: 28px 14px;
+    font-family:'Inter', sans-serif;
+  }
+
+  .stage{ width:100%; display:flex; justify-content:center; }
+
+  .card{
+    position:relative;
+    width:min(440px, 100%);
+    background: linear-gradient(160deg, var(--panel-a) 0%, var(--panel-b) 100%);
+    border-radius: 26px;
+    border: 1px solid var(--edge);
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.02) inset,
+      0 30px 60px -20px rgba(0,0,0,0.7),
+      0 0 80px -30px var(--mint-dim);
+    padding: 26px 26px 22px;
+    overflow:hidden;
+  }
+
+  /* subtle brushed-panel texture */
+  .card::before{
+    content:"";
+    position:absolute; inset:0;
+    background: repeating-linear-gradient(135deg, rgba(255,255,255,0.012) 0 2px, transparent 2px 5px);
+    pointer-events:none;
+  }
+
+  /* corner rivets */
+  .rivet{
+    position:absolute; width:6px; height:6px; border-radius:50%;
+    background: radial-gradient(circle at 35% 35%, #4b5160, #1a1c20 70%);
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.05);
+  }
+  .rivet.tl{ top:14px; left:14px; } .rivet.tr{ top:14px; right:14px; }
+  .rivet.bl{ bottom:14px; left:14px; } .rivet.br{ bottom:14px; right:14px; }
+
+  .readout-row{
+    display:flex; justify-content:space-between; align-items:flex-start;
+    margin-bottom: 6px;
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 10.5px; letter-spacing: 0.14em;
+    color: var(--slate); margin:0 0 2px;
+  }
+  .readout-main{
+    font-family:'Big Shoulders Display', sans-serif;
+    font-weight:700; font-size: 19px; letter-spacing:0.03em;
+    color: var(--cream); text-transform:uppercase;
+  }
+  .status{
+    display:flex; align-items:center; gap:6px;
+    font-family:'JetBrains Mono', monospace;
+    font-size: 10.5px; letter-spacing:0.08em; color: var(--slate);
+    margin-top: 3px;
+  }
+  .dot{
+    width:7px; height:7px; border-radius:50%;
+    background: var(--amber);
+    box-shadow: 0 0 8px 1px var(--amber);
+    animation: blink 1.6s ease-in-out infinite;
+  }
+  .dot.ready{
+    background: var(--mint); box-shadow: 0 0 9px 2px var(--mint);
+    animation: none;
+  }
+  @keyframes blink{ 0%,100%{opacity:1;} 50%{opacity:0.35;} }
+
+  /* gauge */
+  .gauge-wrap{ position:relative; margin: 6px auto 2px; width: 100%; max-width: 300px; }
+  svg.gauge{ width:100%; display:block; }
+  .zone-label{
+    font-family:'Big Shoulders Display', sans-serif;
+    font-size: 10.5px; font-weight:700; letter-spacing:0.06em;
+    fill: var(--slate);
+  }
+  .needle-hub{ fill:#0e0f12; stroke: var(--edge); stroke-width:1.5; }
+  .needle-line{ stroke: var(--amber); stroke-width:4; stroke-linecap:round; transition: stroke 0.3s ease; }
+  .needle-line.live{ stroke: var(--mint); }
+
+  .pct-row{
+    display:flex; justify-content:center; align-items:baseline; gap:8px;
+    margin: 2px 0 14px;
+    font-family:'JetBrains Mono', monospace;
+  }
+  .pct-label{ font-size:10.5px; letter-spacing:0.1em; color: var(--slate); }
+  .pct-value{ font-size: 22px; font-weight:700; color: var(--amber); transition: color 0.3s ease; min-width: 3.2ch; text-align:right; }
+  .pct-value.live{ color: var(--mint); }
+
+  /* ignition */
+  .ignition-zone{ display:flex; flex-direction:column; align-items:center; gap:8px; margin: 4px 0 4px; }
+  .ignition{
+    width:78px; height:78px; border-radius:50%;
+    border: 2px solid var(--amber);
+    background: radial-gradient(circle at 50% 38%, #2a2e34, #181a1d 75%);
+    box-shadow: 0 0 18px -4px var(--amber-dim), 0 4px 10px rgba(0,0,0,0.5);
+    color: var(--amber);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; font-size:0;
+    transition: box-shadow 0.4s ease, border-color 0.4s ease, transform 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .ignition:active{ transform: scale(0.96); }
+  .ignition.running{
+    border-color: var(--mint);
+    box-shadow: 0 0 26px -2px var(--mint-dim), 0 4px 10px rgba(0,0,0,0.5);
+    color: var(--mint);
+    cursor:default;
+  }
+  .ignition svg{ width:30px; height:30px; }
+  .ignition:focus-visible{ outline: 2px solid var(--mint); outline-offset: 3px; }
+  .ignition-caption{
+    font-family:'JetBrains Mono', monospace; font-size: 10px; letter-spacing:0.12em;
+    color: var(--slate); text-transform:uppercase;
+  }
+
+  /* message panel */
+  .message{
+    max-height:0; opacity:0; transform: translateY(8px);
+    overflow:hidden;
+    transition: max-height 0.6s ease, opacity 0.5s ease, transform 0.5s ease, margin-top 0.6s ease;
+  }
+  .message.show{
+    max-height: 900px; opacity:1; transform: translateY(0); margin-top: 14px;
+  }
+  .screen{
+    background: #0e0f12;
+    border: 1px solid var(--edge);
+    border-radius: 14px;
+    padding: 16px 16px 14px;
+  }
+  .screen h3{
+    margin:0 0 8px;
+    font-family:'Big Shoulders Display', sans-serif;
+    font-size: 16.5px; letter-spacing:0.04em; font-weight:700;
+    color: var(--mint); text-transform:uppercase;
+  }
+  .screen p{
+    margin: 0 0 10px;
+    font-size: 14px; line-height:1.55; color: var(--cream);
+  }
+  .screen p:last-of-type{ margin-bottom:0; }
+  .signoff{ text-align:right; color: var(--slate) !important; font-style:italic; }
+  .signoff strong{ color: var(--cream); font-style:normal; }
+
+  .plate{
+    margin-top: 14px;
+    display:grid; grid-template-columns: 1fr 1fr; gap: 10px 14px;
+  }
+  .field .k{
+    font-family:'JetBrains Mono', monospace; font-size: 9.5px; letter-spacing:0.1em;
+    color: var(--slate); margin:0 0 2px;
+  }
+  .field .v{
+    font-family:'JetBrains Mono', monospace; font-size: 12px; font-weight:600;
+    color: var(--cream);
+  }
+
+  .hint{
+    text-align:center; margin-top:14px;
+    font-family:'JetBrains Mono', monospace; font-size: 9.5px; letter-spacing:0.08em;
+    color: var(--edge);
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .dot{ animation:none; }
+  }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="card" id="card">
+    <span class="rivet tl"></span><span class="rivet tr"></span>
+    <span class="rivet bl"></span><span class="rivet br"></span>
+
+    <div class="readout-row">
+      <div>
+        <p class="eyebrow">RTO TEST DAY · ROUTE: HOME → LICENCE</p>
+        <p class="readout-main">TODAY</p>
+      </div>
+      <div style="text-align:right;">
+        <p class="eyebrow" style="margin-bottom:6px;">SYSTEM</p>
+        <div class="status"><span class="dot" id="dot"></span><span id="statusText">STANDBY</span></div>
+      </div>
+    </div>
+
+    <div class="gauge-wrap">
+      <svg class="gauge" viewBox="0 0 300 165" id="gaugeSvg">
+        <path d="M30,150 A120,120 0 0,1 90,46.1" fill="none" stroke="#3a3f47" stroke-width="14" stroke-linecap="round" id="arcZone1"/>
+        <path d="M90,46.1 A120,120 0 0,1 210,46.1" fill="none" stroke="#3a3f47" stroke-width="14" stroke-linecap="round" id="arcZone2"/>
+        <path d="M210,46.1 A120,120 0 0,1 270,150" fill="none" stroke="#3a3f47" stroke-width="14" stroke-linecap="round" id="arcZone3"/>
+
+        <text x="40" y="138" class="zone-label" text-anchor="start">NERVOUS</text>
+        <text x="150" y="28" class="zone-label" text-anchor="middle">FOCUSED</text>
+        <text x="260" y="138" class="zone-label" text-anchor="end">UNSTOPPABLE</text>
+
+        <line id="needle" class="needle-line" x1="150" y1="150" x2="150" y2="48" transform="rotate(-80 150 150)"/>
+        <circle class="needle-hub" cx="150" cy="150" r="9"/>
+      </svg>
+    </div>
+
+    <div class="pct-row">
+      <span class="pct-label">CONFIDENCE</span>
+      <span class="pct-value" id="pctValue">000%</span>
+    </div>
+
+    <div class="ignition-zone">
+      <button class="ignition" id="ignitionBtn" aria-label="Press to start the engine">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M12 2v8"/>
+          <path d="M18.36 6.64a9 9 0 1 1-12.72 0"/>
+        </svg>
+      </button>
+      <span class="ignition-caption" id="ignitionCaption">Press to start</span>
+    </div>
+
+    <div class="message" id="message">
+      <div class="screen">
+        <h3>All systems go, Nidhi</h3>
+        <p>You already know how to do this — the muscle memory, the mirror checks, the quiet confidence of someone who has practised enough.</p>
+        <p>Today isn't really a test of your driving. It's just the RTO catching up to what you've already mastered.</p>
+        <p>Steady hands. Calm mind. Clear road ahead.</p>
+        <p>I'll be cheering for you at every signal, every turn, every gear shift.</p>
+        <p class="signoff">Cheering you on, all the way to the licence —<br><strong>Amit</strong></p>
+      </div>
+      <div class="plate">
+        <div class="field"><p class="k">NAME</p><p class="v">NIDHI</p></div>
+        <div class="field"><p class="k">CLASS</p><p class="v">LMV — FEARLESS EDITION</p></div>
+        <div class="field"><p class="k">VALID</p><p class="v">FOR LIFE</p></div>
+        <div class="field"><p class="k">ISSUED BY</p><p class="v">AMIT, WITH LOVE</p></div>
+      </div>
+    </div>
+
+    <p class="hint" id="hintText">› press the button to begin</p>
+  </div>
+</div>
+
+<script>
+(function(){
+  const btn = document.getElementById('ignitionBtn');
+  const needle = document.getElementById('needle');
+  const pct = document.getElementById('pctValue');
+  const dot = document.getElementById('dot');
+  const statusText = document.getElementById('statusText');
+  const message = document.getElementById('message');
+  const caption = document.getElementById('ignitionCaption');
+  const hint = document.getElementById('hintText');
+  const arc3 = document.getElementById('arcZone3');
+  const arc2 = document.getElementById('arcZone2');
+
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let started = false;
+
+  function easeOutBack(t){
+    const c1 = 1.70158, c3 = c1 + 1;
+    return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
+  }
+  function easeOutCubic(t){ return 1 - Math.pow(1 - t, 3); }
+
+  function run(){
+    if (started) return;
+    started = true;
+    btn.classList.add('running');
+    btn.setAttribute('aria-disabled','true');
+    caption.textContent = 'Engine running';
+    hint.style.opacity = '0';
+
+    const duration = reduced ? 60 : 1700;
+    const start = performance.now();
+
+    function frame(now){
+      const t = Math.min((now - start) / duration, 1);
+      const needleT = easeOutBack(t);
+      const angle = -80 + 160 * needleT;
+      needle.setAttribute('transform', 'rotate(' + angle + ' 150 150)');
+
+      const pctT = easeOutCubic(t);
+      const val = Math.round(100 * pctT);
+      pct.textContent = String(val).padStart(3, '0') + '%';
+
+      if (t >= 0.55) {
+        needle.classList.add('live');
+        pct.classList.add('live');
+        arc3.setAttribute('stroke', '#6EE7B7');
+        arc2.setAttribute('stroke', '#a9d98f');
+      }
+
+      if (t < 1) {
+        requestAnimationFrame(frame);
+      } else {
+        dot.classList.add('ready');
+        dot.style.animation = 'none';
+        statusText.textContent = 'CLEAR TO DRIVE';
+        message.classList.add('show');
+      }
+    }
+    requestAnimationFrame(frame);
+  }
+
+  btn.addEventListener('click', run);
+})();
+</script>
+</body>
+</html>
