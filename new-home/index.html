@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The keys are yours</title>
+<meta name="description" content="A card for a new home.">
+<meta property="og:title" content="The keys are yours">
+<meta property="og:description" content="A card for a new home.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://amitkumargoyal.com/celebration-cards/new-home/preview.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Tiro+Devanagari+Hindi&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --night:#1B0B2E; --sky:#2A1147; --cream:#FAF7F2; --violet:#5A1BA6;
+    --terracotta:#A03A2C; --terracotta-dk:#8C3125; --sage:#B8C5B5; --lamp:#F3C97C;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--night); color:#C9BCE0;
+    font-family:"Cormorant Garamond",Georgia,serif;
+    min-height:100vh; display:flex; align-items:center; justify-content:center;
+    padding:32px 20px; transition:background-color 2.4s ease, color 2.4s ease;
+  }
+  body.lit{background:var(--cream); color:#4A4A48}
+  .card{width:100%; max-width:600px; text-align:center}
+  svg{width:100%; height:auto; display:block; border-radius:10px}
+  .sky{transition:fill 2.4s ease}
+  .star{transition:opacity 1.4s ease}
+  #door{transform-box:fill-box; transform-origin:left center;
+        transition:transform 1.5s cubic-bezier(.3,.8,.4,1)}
+  .win{transition:fill 1.1s ease}
+  .glow{opacity:0; transition:opacity 1.6s ease}
+  .knock{margin-top:26px}
+  .lockplate{
+    width:74px; height:74px; border-radius:50%; cursor:pointer;
+    background:transparent; border:1px solid rgba(184,197,181,.5);
+    color:var(--sage); display:inline-flex; align-items:center; justify-content:center;
+    transition:border-color .4s ease, color .4s ease, opacity .8s ease, transform .2s ease;
+  }
+  .lockplate:hover{border-color:var(--sage); transform:scale(1.04)}
+  .lockplate:focus-visible{outline:2px solid var(--lamp); outline-offset:4px}
+  .lockplate svg{width:30px; height:30px; transition:transform 1.2s cubic-bezier(.3,.8,.4,1)}
+  .lockplate.turned svg{transform:rotate(95deg)}
+  .lockplate.turned{opacity:0; pointer-events:none}
+  .hint{margin:12px 0 0; font-size:15px; letter-spacing:.16em; text-transform:lowercase;
+        color:#8C7BA8; transition:opacity .8s ease}
+  .hint.gone{opacity:0}
+  #msg{opacity:0; transition:opacity 2s ease; margin-top:8px}
+  #msg h1{font-size:clamp(34px,7vw,50px); font-weight:400; font-style:italic;
+          color:var(--violet); margin:0 0 10px; line-height:1.15}
+  #msg .hindi{font-family:"Tiro Devanagari Hindi",serif; font-size:17px;
+              letter-spacing:.1em; color:var(--terracotta); margin:0 0 26px}
+  #msg .rule{width:60px; height:1px; background:var(--sage); border:0; margin:0 auto 26px}
+  #msg p.body{font-size:clamp(19px,3.4vw,22px); line-height:1.65; margin:0 auto 18px;
+              max-width:34em; color:inherit}
+  #msg .sign{font-size:18px; color:#8A8A86; margin-top:30px; font-style:italic}
+  .again{margin-top:34px; font-size:14px; letter-spacing:.1em; color:#A9A9A4;
+         background:none; border:0; cursor:pointer; font-family:inherit;
+         border-bottom:1px solid #D8CFC2; padding:0 0 3px}
+  .again:hover{color:var(--terracotta); border-color:var(--terracotta)}
+  .again:focus-visible{outline:2px solid var(--violet); outline-offset:3px}
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none!important; animation:none!important}
+  }
+</style>
+</head>
+<body>
+<main class="card">
+
+<svg viewBox="0 0 680 400" role="img" aria-labelledby="ttl dsc">
+  <title id="ttl">A house at night</title>
+  <desc id="dsc">A cream house with a terracotta roof on sage ground under a night sky. Turning the key opens the front door, spills warm light onto the path, and lights every window.</desc>
+
+  <rect class="sky" x="0" y="0" width="680" height="310" fill="#2A1147"/>
+  <circle cx="92" cy="72" r="30" fill="#FAF7F2" opacity="0.92"/>
+  <circle cx="80" cy="64" r="26" fill="#2A1147"/>
+  <g class="star">
+    <circle cx="180" cy="48" r="2.2" fill="#FAF7F2" opacity=".7"/>
+    <circle cx="256" cy="96" r="1.8" fill="#FAF7F2" opacity=".5"/>
+    <circle cx="560" cy="58" r="2.4" fill="#FAF7F2" opacity=".8"/>
+    <circle cx="624" cy="128" r="1.8" fill="#FAF7F2" opacity=".45"/>
+    <circle cx="470" cy="42" r="2" fill="#FAF7F2" opacity=".65"/>
+    <circle cx="140" cy="150" r="1.6" fill="#FAF7F2" opacity=".4"/>
+    <circle cx="600" cy="216" r="1.6" fill="#FAF7F2" opacity=".35"/>
+    <circle cx="330" cy="36" r="1.6" fill="#FAF7F2" opacity=".5"/>
+  </g>
+
+  <rect x="0" y="300" width="680" height="100" fill="#B8C5B5"/>
+  <path d="M310 300 L370 300 L438 400 L242 400 Z" fill="#C6D1C3"/>
+  <path id="spill" class="glow" d="M312 300 L368 300 L424 400 L256 400 Z" fill="#F3C97C"/>
+
+  <polygon points="186,156 340,66 494,156" fill="#A03A2C"/>
+  <polygon points="186,156 340,66 340,156" fill="#8C3125"/>
+  <rect x="424" y="86" width="26" height="48" fill="#8C3125"/>
+  <rect x="418" y="80" width="38" height="12" rx="3" fill="#A03A2C"/>
+
+  <rect x="212" y="156" width="256" height="146" fill="#FAF7F2"/>
+
+  <circle class="win" cx="340" cy="122" r="15" fill="#3A2358"/>
+  <circle cx="340" cy="122" r="15" fill="none" stroke="#8C3125" stroke-width="2.5"/>
+
+  <rect class="win" x="240" y="184" width="48" height="48" rx="3" fill="#3A2358"/>
+  <rect x="240" y="184" width="48" height="48" rx="3" fill="none" stroke="#8C3125" stroke-width="2.5"/>
+  <line x1="264" y1="184" x2="264" y2="232" stroke="#8C3125" stroke-width="2"/>
+  <line x1="240" y1="208" x2="288" y2="208" stroke="#8C3125" stroke-width="2"/>
+
+  <rect class="win" x="392" y="184" width="48" height="48" rx="3" fill="#3A2358"/>
+  <rect x="392" y="184" width="48" height="48" rx="3" fill="none" stroke="#8C3125" stroke-width="2.5"/>
+  <line x1="416" y1="184" x2="416" y2="232" stroke="#8C3125" stroke-width="2"/>
+  <line x1="392" y1="208" x2="440" y2="208" stroke="#8C3125" stroke-width="2"/>
+
+  <rect x="310" y="212" width="60" height="90" rx="2" fill="#F3C97C"/>
+  <g id="door">
+    <rect x="310" y="212" width="60" height="90" rx="2" fill="#8C3125"/>
+    <rect x="318" y="222" width="44" height="34" rx="2" fill="none" stroke="#A03A2C" stroke-width="2"/>
+    <rect x="318" y="264" width="44" height="30" rx="2" fill="none" stroke="#A03A2C" stroke-width="2"/>
+    <circle cx="358" cy="258" r="3.5" fill="#FAF7F2"/>
+  </g>
+  <rect x="304" y="204" width="72" height="8" rx="2" fill="#A03A2C"/>
+
+  <g id="diyaA" class="glow">
+    <ellipse cx="252" cy="322" rx="16" ry="6" fill="#A03A2C"/>
+    <path d="M252 316 q7 -12 0 -20 q-7 8 0 20 Z" fill="#F3C97C"/>
+  </g>
+  <g id="diyaB" class="glow">
+    <ellipse cx="428" cy="322" rx="16" ry="6" fill="#A03A2C"/>
+    <path d="M428 316 q7 -12 0 -20 q-7 8 0 20 Z" fill="#F3C97C"/>
+  </g>
+
+  <path d="M540 302 q6 -46 22 -46 q16 0 22 46 Z" fill="#7E8F7C"/>
+  <rect x="558" y="292" width="8" height="12" fill="#6E7D6C"/>
+  <path d="M118 302 q5 -34 18 -34 q13 0 18 34 Z" fill="#7E8F7C"/>
+</svg>
+
+<div class="knock">
+  <button class="lockplate" id="key" aria-label="Turn the key to open the door">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"
+         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle cx="8" cy="8" r="4"/>
+      <path d="M10.8 10.8 L20 20"/>
+      <path d="M17 17 L15 19"/>
+      <path d="M19.5 19.5 L17.5 21.5"/>
+    </svg>
+  </button>
+  <p class="hint" id="hint">turn the key</p>
+</div>
+
+<div id="msg">
+  <h1>The keys are yours</h1>
+  <p class="hindi">गृह प्रवेश</p>
+  <hr class="rule">
+  <p class="body">Congratulations, Mummy and Papa. A house is only walls and a roof until someone lives in it. You have been making homes for years — this one just finally has your name on it.</p>
+  <p class="body">May every light in it stay warm, and may the door keep opening for people you love.</p>
+  <p class="sign">— Amit</p>
+  <button class="again" id="again">play it again</button>
+</div>
+
+</main>
+<script>
+(function () {
+  var key   = document.getElementById('key');
+  var hint  = document.getElementById('hint');
+  var door  = document.getElementById('door');
+  var spill = document.getElementById('spill');
+  var msg   = document.getElementById('msg');
+  var again = document.getElementById('again');
+  var wins  = document.querySelectorAll('.win');
+  var diyas = [document.getElementById('diyaA'), document.getElementById('diyaB')];
+  var stars = document.querySelector('.star');
+  var sky   = document.querySelector('.sky');
+  var timers = [];
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function at(ms, fn) { timers.push(setTimeout(fn, reduce ? 0 : ms)); }
+
+  function open() {
+    key.classList.add('turned');
+    hint.classList.add('gone');
+    door.style.transform = 'scaleX(0.12)';
+    at(750,  function () { spill.style.opacity = '0.55'; });
+    wins.forEach(function (w, i) {
+      at(1150 + i * 450, function () { w.setAttribute('fill', '#F3C97C'); });
+    });
+    at(2200, function () { diyas[0].style.opacity = '1'; });
+    at(2500, function () { diyas[1].style.opacity = '1'; });
+    at(2600, function () {
+      document.body.classList.add('lit');
+      stars.style.opacity = '0.25';
+      sky.setAttribute('fill', '#3B1C63');
+    });
+    at(3000, function () { msg.style.opacity = '1'; });
+  }
+
+  function reset() {
+    timers.forEach(clearTimeout); timers = [];
+    msg.style.opacity = '0';
+    document.body.classList.remove('lit');
+    stars.style.opacity = '1';
+    sky.setAttribute('fill', '#2A1147');
+    door.style.transform = 'scaleX(1)';
+    spill.style.opacity = '0';
+    diyas.forEach(function (d) { d.style.opacity = '0'; });
+    wins.forEach(function (w) { w.setAttribute('fill', '#3A2358'); });
+    at(900, function () {
+      key.classList.remove('turned');
+      hint.classList.remove('gone');
+    });
+  }
+
+  key.addEventListener('click', open);
+  again.addEventListener('click', reset);
+})();
+</script>
+</body>
+</html>
