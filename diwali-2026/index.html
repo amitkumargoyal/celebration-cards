@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Happy Diwali</title>
+<meta name="description" content="Light one lamp and watch the light travel.">
+<meta property="og:title" content="Happy Diwali">
+<meta property="og:description" content="Light one lamp and watch the light travel.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://amitkumargoyal.com/celebration-cards/diwali-2026/preview.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Tiro+Devanagari+Hindi&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --night:#1B0B2E; --cream:#FAF7F2; --violet:#5A1BA6;
+    --terracotta:#A03A2C; --sage:#B8C5B5; --lamp:#F3C97C;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--night); color:#C9BCE0;
+    font-family:"Cormorant Garamond",Georgia,serif;
+    min-height:100vh; display:flex; align-items:center; justify-content:center;
+    padding:28px 16px 40px;
+  }
+  .card{width:100%; max-width:600px; text-align:center}
+  canvas{width:100%; aspect-ratio:1/1; display:block; touch-action:manipulation;
+         -webkit-tap-highlight-color:transparent; border-radius:50%}
+  canvas:focus-visible{outline:2px solid var(--lamp); outline-offset:6px}
+  canvas.pick{cursor:pointer}
+
+  .hint{margin:14px 0 0; font-size:15px; letter-spacing:.16em; text-transform:lowercase;
+        color:#8C7BA8; transition:opacity .8s ease}
+  .hint.gone{opacity:0}
+
+  .ledger{margin:-6px auto 0; display:inline-grid; grid-template-columns:auto auto;
+          column-gap:22px; row-gap:2px; font-size:17px; text-align:left;
+          opacity:0; transition:opacity 1s ease}
+  .ledger.on{opacity:1}
+  .ledger dt{color:#8C7BA8; font-style:italic}
+  .ledger dd{margin:0; color:var(--lamp); font-variant-numeric:lining-nums tabular-nums;
+             text-align:right}
+
+  #msg{opacity:0; transition:opacity 2s ease; margin-top:34px; pointer-events:none}
+  #msg.on{opacity:1; pointer-events:auto}
+  #msg h1{font-size:clamp(36px,7.4vw,52px); font-weight:400; font-style:italic;
+          color:var(--cream); margin:0 0 8px; line-height:1.15}
+  #msg .hindi{font-family:"Tiro Devanagari Hindi",serif; font-size:18px;
+              letter-spacing:.08em; color:var(--lamp); margin:0 0 26px}
+  #msg .rule{width:60px; height:1px; background:var(--sage); border:0; margin:0 auto 26px; opacity:.6}
+  #msg p.body{font-size:clamp(19px,3.4vw,22px); line-height:1.65; margin:0 auto 18px;
+              max-width:32em}
+  #msg .sign{font-size:19px; color:#A795C4; margin-top:28px; font-style:italic}
+  #msg .note{font-size:14.5px; color:#7D6E97; margin:30px auto 0; max-width:30em; line-height:1.5}
+  #msg .note i{font-style:italic; color:#998ab3}
+  #msg .note .nw{white-space:nowrap}
+  .again{margin-top:30px; font-size:14px; letter-spacing:.1em; color:#9B8DB5;
+         background:none; border:0; cursor:pointer; font-family:inherit;
+         border-bottom:1px solid #4A3666; padding:0 0 3px}
+  .again:hover{color:var(--lamp); border-color:var(--lamp)}
+  .again:focus-visible{outline:2px solid var(--lamp); outline-offset:3px}
+  @media (prefers-reduced-motion:reduce){
+    *{transition:none!important}
+  }
+</style>
+</head>
+<body>
+<main class="card">
+
+<canvas id="rangoli" tabindex="0" role="button"
+        aria-label="A rangoli of 33 unlit clay lamps. Press Enter to light the centre lamp, or tap any lamp."></canvas>
+
+<p class="hint" id="hint">light any one lamp</p>
+
+<dl class="ledger" id="ledger" aria-live="polite">
+  <dt>lamps lit</dt><dd><span id="count">0</span> / 33</dd>
+  <dt>light the first lamp lost</dt><dd>0</dd>
+</dl>
+
+<div id="msg">
+  <h1>Happy Diwali</h1>
+  <p class="hindi">शुभ दीपावली</p>
+  <hr class="rule">
+  <p class="body">Most things get smaller when we share them. A flame does not. The lamp you lit first is burning as brightly as it was. It simply has company now.</p>
+  <p class="body">Economists call goods like this non-rival. On Diwali we just call it light. May yours travel far this year, and come back to you from every direction.</p>
+  <p class="sign">— Amit</p>
+  <p class="note">The rangoli is drawn with rose curves, <span class="nw"><i>r</i>&nbsp;=&nbsp;<i>a</i>&nbsp;+&nbsp;<i>b</i>&nbsp;cos&nbsp;<i>kθ</i></span>, for <span class="nw"><i>k</i>&nbsp;=&nbsp;4</span> and&nbsp;8. The light travels along its threads and reaches each lamp by the shortest route.</p>
+  <button class="again" id="again">light it again</button>
+</div>
+
+</main>
+<script>
+(function () {
+  var cv = document.getElementById('rangoli');
+  var ctx = cv.getContext('2d');
+  var hint = document.getElementById('hint');
+  var ledger = document.getElementById('ledger');
+  var countEl = document.getElementById('count');
+  var msg = document.getElementById('msg');
+  var again = document.getElementById('again');
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var TAU = Math.PI * 2, TOP = -Math.PI / 2;
+  var SPEED = 0.00042;           // rangoli units per millisecond
+
+  /* ---------- the graph: 1 + 8 + 8 + 16 lamps ---------- */
+  var nodes = [], edges = [];
+  function add(r, a, ring, idx) {
+    nodes.push({ r: r, a: a, ring: ring, idx: idx, nb: [],
+                 lit: false, litAt: 0, eta: Infinity,
+                 ph: Math.random() * TAU, ph2: Math.random() * TAU });
+    return nodes.length - 1;
+  }
+  var C = add(0, 0, 0, 0), R1 = [], R2 = [], R3 = [], i, j, k;
+  for (i = 0; i < 8; i++)  R1.push(add(0.24, TOP + i * TAU / 8, 1, i));
+  for (j = 0; j < 8; j++)  R2.push(add(0.50, TOP + TAU / 16 + j * TAU / 8, 2, j));
+  for (k = 0; k < 16; k++) R3.push(add(0.80, TOP + k * TAU / 16, 3, k));
+
+  function pol(r, a) { return [r * Math.cos(a), r * Math.sin(a)]; }
+  function link(a, b, type) {
+    var A = nodes[a], B = nodes[b], e = { a: a, b: b, type: type };
+    if (type === 'arc') {
+      var d = B.a - A.a;
+      d = ((d + Math.PI) % TAU + TAU) % TAU - Math.PI;
+      e.r = A.r; e.a0 = A.a; e.d = d; e.len = Math.abs(d) * A.r;
+    } else {
+      var p = pol(A.r, A.a), q = pol(B.r, B.a);
+      e.p = p; e.q = q; e.len = Math.hypot(p[0] - q[0], p[1] - q[1]);
+    }
+    edges.push(e);
+    A.nb.push({ n: b, e: e, dir: 1 });
+    B.nb.push({ n: a, e: e, dir: -1 });
+  }
+  for (i = 0; i < 8; i++) {
+    link(C, R1[i], 'line');
+    link(R1[i], R1[(i + 1) % 8], 'arc');
+    link(R1[i], R2[i], 'line');
+    link(R1[i], R2[(i + 7) % 8], 'line');
+    link(R1[i], R3[2 * i], 'line');
+  }
+  for (j = 0; j < 8; j++) {
+    link(R2[j], R2[(j + 1) % 8], 'arc');
+    link(R2[j], R3[2 * j + 1], 'line');
+  }
+  for (k = 0; k < 16; k++) link(R3[k], R3[(k + 1) % 16], 'arc');
+
+  function edgePt(e, t) {
+    if (e.type === 'arc') { var ang = e.a0 + e.d * t; return [e.r * Math.cos(ang), e.r * Math.sin(ang)]; }
+    return [e.p[0] + (e.q[0] - e.p[0]) * t, e.p[1] + (e.q[1] - e.p[1]) * t];
+  }
+
+  /* ---------- stars outside the rangoli ---------- */
+  var stars = [];
+  (function () {
+    var s = 7;
+    while (stars.length < 26) {
+      s = (s * 9301 + 49297) % 233280;  var x = s / 233280 * 2.1 - 1.05;
+      s = (s * 9301 + 49297) % 233280;  var y = s / 233280 * 2.1 - 1.05;
+      if (Math.hypot(x, y) > 0.97) stars.push({ x: x, y: y, ph: s % 100, sz: 0.6 + (s % 7) / 6 });
+    }
+  })();
+
+  /* ---------- sizing ---------- */
+  var css = 0, dpr = 1, R = 0, cx = 0, cy = 0, s = 0;
+  function resize() {
+    css = cv.clientWidth; dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+    cv.width = cv.height = Math.round(css * dpr);
+    cx = cy = css / 2; R = css / 2 * 0.9; s = Math.max(7.5, R * 0.04);
+  }
+  function X(u) { return cx + u * R; }
+  function Y(v) { return cy + v * R; }
+  function P(r, a) { return [cx + r * R * Math.cos(a), cy + r * R * Math.sin(a)]; }
+
+  /* ---------- state ---------- */
+  var sparks = [], litCount = 0, first = -1, doneAt = 0, hover = -1, timers = [];
+  function ease(x) { x = Math.max(0, Math.min(1, x)); return 1 - Math.pow(1 - x, 3); }
+  function lvl(n, now, ms) { return nodes[n].lit ? ease((now - nodes[n].litAt) / ms) : 0; }
+
+  function ignite(n, t) {
+    var N = nodes[n];
+    if (N.lit) return;
+    N.lit = true; N.litAt = t; litCount++;
+    countEl.textContent = litCount;
+    if (reduce) return;
+    N.nb.forEach(function (o) {
+      var M = nodes[o.n];
+      if (M.lit) return;
+      var dur = o.e.len / SPEED + 60 + Math.random() * 140;
+      sparks.push({ e: o.e, dir: o.dir, t0: t, dur: dur, to: o.n });
+      if (t + dur < M.eta) M.eta = t + dur;
+    });
+  }
+
+  function start(n) {
+    var now = performance.now();
+    if (first < 0) {
+      first = n;
+      hint.classList.add('gone');
+      ledger.classList.add('on');
+    }
+    if (reduce) { nodes.forEach(function (_, m) { ignite(m, now); }); }
+    else ignite(n, now);
+  }
+
+  function step(now) {
+    for (;;) {                       // light lamps whose flame has arrived, in time order
+      var best = -1, eta = Infinity;
+      for (var m = 0; m < nodes.length; m++)
+        if (!nodes[m].lit && nodes[m].eta < eta) { eta = nodes[m].eta; best = m; }
+      if (best < 0 || eta > now) break;
+      ignite(best, eta);
+    }
+    if (litCount === nodes.length && !doneAt) {
+      doneAt = now;
+      timers.push(setTimeout(function () {
+        msg.classList.add('on');
+        var b = msg.getBoundingClientRect();
+        if (b.top > window.innerHeight * 0.7)
+          window.scrollTo({ top: window.scrollY + b.top - 40, behavior: reduce ? 'auto' : 'smooth' });
+      }, reduce ? 0 : 1100));
+    }
+  }
+
+  /* ---------- drawing ---------- */
+  function rose(base, amp, centre, half, m) {
+    var steps = 40, q;
+    ctx.beginPath();
+    for (var t = 0; t <= steps; t++) {
+      var ph = centre - half + 2 * half * t / steps;
+      q = P(base + amp * Math.cos(m * (ph - centre)), ph);
+      if (t === 0) ctx.moveTo(q[0], q[1]); else ctx.lineTo(q[0], q[1]);
+    }
+    if (base > 0) ctx.arc(cx, cy, base * R, centre + half, centre - half, true);
+    ctx.closePath();
+  }
+
+  var PETAL = {
+    1: { base: 0,    amp: 0.24, m: 4, half: Math.PI / 8,  fill: '139,92,214', stroke: '183,155,234', fa: 0.42 },
+    2: { base: 0.18, amp: 0.32, m: 4, half: Math.PI / 8,  fill: '176,72,52',  stroke: '222,128,100', fa: 0.50 },
+    3: { base: 0.56, amp: 0.24, m: 8, half: Math.PI / 16, fill: '243,201,124', stroke: '243,201,124', fa: 0.26 }
+  };
+
+  function drawDiya(N, n, now) {
+    var big = N.ring === 0 ? 1.35 : 1, sz = s * big;
+    var p = P(N.r, N.a), x = p[0], y = p[1] + sz * 0.35;
+    var I = lvl(n, now, 520);
+
+    // bowl
+    ctx.beginPath();
+    ctx.moveTo(x - sz, y);
+    ctx.bezierCurveTo(x - sz, y + sz * 0.95, x + sz * 0.55, y + sz * 0.95, x + sz * 1.3, y - sz * 0.22);
+    ctx.quadraticCurveTo(x + sz * 0.2, y + sz * 0.16, x - sz, y);
+    ctx.closePath();
+    ctx.fillStyle = N.lit ? '#B4432F' : '#7E2E23';
+    ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(x + sz * 0.06, y + sz * 0.03, sz * 0.82, sz * 0.17, -0.06, 0, TAU);
+    ctx.fillStyle = N.lit ? '#5E1E15' : '#4A1912';
+    ctx.fill();
+    // wick
+    var wx = x + sz * 0.88, wy = y - sz * 0.1;
+    ctx.beginPath(); ctx.arc(wx, wy, sz * 0.09, 0, TAU);
+    ctx.fillStyle = N.lit ? '#3A1A0E' : '#2B1520'; ctx.fill();
+
+    if (n === hover && !N.lit) {
+      ctx.beginPath(); ctx.arc(p[0], p[1], sz * 2, 0, TAU);
+      ctx.setLineDash([3, 4]); ctx.strokeStyle = 'rgba(184,197,181,.7)'; ctx.lineWidth = 1; ctx.stroke();
+      ctx.setLineDash([]);
+    }
+    if (n === first) {
+      ctx.beginPath(); ctx.arc(p[0], p[1] - sz * 0.3, sz * 2.25, 0, TAU);
+      ctx.strokeStyle = 'rgba(250,247,242,' + (0.35 * I) + ')'; ctx.lineWidth = 1; ctx.stroke();
+    }
+    if (!I) return;
+
+    var fl = reduce ? 1 : 1 + 0.07 * Math.sin(now * 0.011 + N.ph) + 0.05 * Math.sin(now * 0.027 + N.ph2);
+    var flare = 1 + 0.35 * Math.sin(Math.PI * Math.min(1, (now - N.litAt) / 520));
+    var h = sz * 1.75 * I * fl * (reduce ? 1 : flare), w = sz * 0.44 * Math.min(1, I * 1.4);
+    var sway = reduce ? 0 : sz * 0.12 * Math.sin(now * 0.004 + N.ph);
+
+    // glow
+    ctx.globalCompositeOperation = 'lighter';
+    var gr = ctx.createRadialGradient(wx, wy - h * 0.4, 0, wx, wy - h * 0.4, sz * 6.5);
+    gr.addColorStop(0, 'rgba(243,190,110,' + (0.30 * I) + ')');
+    gr.addColorStop(0.35, 'rgba(224,123,57,' + (0.10 * I) + ')');
+    gr.addColorStop(1, 'rgba(160,58,44,0)');
+    ctx.fillStyle = gr;
+    ctx.fillRect(wx - sz * 6.5, wy - h * 0.4 - sz * 6.5, sz * 13, sz * 13);
+    ctx.globalCompositeOperation = 'source-over';
+
+    // flame
+    ctx.beginPath();
+    ctx.moveTo(wx + sway, wy - h);
+    ctx.bezierCurveTo(wx + w + sway * 0.4, wy - h * 0.45, wx + w * 0.9, wy, wx, wy);
+    ctx.bezierCurveTo(wx - w * 0.9, wy, wx - w + sway * 0.4, wy - h * 0.45, wx + sway, wy - h);
+    var fg = ctx.createRadialGradient(wx, wy - h * 0.18, 0, wx, wy - h * 0.3, h * 0.9);
+    fg.addColorStop(0, '#FFF8E4');
+    fg.addColorStop(0.35, '#F8D98F');
+    fg.addColorStop(0.75, '#EE9A4A');
+    fg.addColorStop(1, '#C8562F');
+    ctx.fillStyle = fg; ctx.fill();
+  }
+
+  function draw(now) {
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, css, css);
+    var prog = litCount / nodes.length, n, N, e, t;
+
+    // backdrop
+    var bg = ctx.createRadialGradient(cx, cy, 0, cx, cy, css * 0.5);
+    bg.addColorStop(0, 'rgba(90,27,166,' + (0.20 + 0.08 * prog) + ')');
+    bg.addColorStop(0.7, 'rgba(90,27,166,0.07)');
+    bg.addColorStop(1, 'rgba(27,11,46,0)');
+    ctx.fillStyle = bg; ctx.fillRect(0, 0, css, css);
+
+    // stars
+    stars.forEach(function (st) {
+      var a = 0.25 + 0.3 * (reduce ? 0.5 : 0.5 + 0.5 * Math.sin(now * 0.0012 + st.ph));
+      ctx.beginPath(); ctx.arc(X(st.x), Y(st.y), st.sz, 0, TAU);
+      ctx.fillStyle = 'rgba(250,247,242,' + (a * (1 - 0.4 * prog)) + ')'; ctx.fill();
+    });
+
+    // rings
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = 'rgba(184,197,181,' + (0.16 + 0.16 * prog) + ')';
+    ctx.setLineDash([2, 5]);
+    ctx.beginPath(); ctx.arc(cx, cy, 0.18 * R, 0, TAU); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.beginPath(); ctx.arc(cx, cy, 0.56 * R, 0, TAU); ctx.stroke();
+    ctx.beginPath();
+    for (t = 0; t <= 360; t++) {
+      var ang = t / 360 * TAU, q = P(0.92 + 0.018 * Math.cos(32 * ang), ang);
+      if (t === 0) ctx.moveTo(q[0], q[1]); else ctx.lineTo(q[0], q[1]);
+    }
+    ctx.strokeStyle = 'rgba(243,201,124,' + (0.10 + 0.32 * ease((now - doneAt) / 1500) * (doneAt ? 1 : 0)) + ')';
+    ctx.stroke();
+
+    // petals
+    for (n = 1; n < nodes.length; n++) {
+      N = nodes[n]; var pc = PETAL[N.ring], f = lvl(n, now, 900);
+      rose(pc.base, pc.amp, N.a, pc.half, pc.m);
+      if (f) { ctx.fillStyle = 'rgba(' + pc.fill + ',' + (pc.fa * f) + ')'; ctx.fill(); }
+      ctx.strokeStyle = 'rgba(' + (f ? pc.stroke : '184,197,181') + ',' + (0.22 + 0.55 * f) + ')';
+      ctx.lineWidth = 1; ctx.stroke();
+    }
+    // centre bindu
+    var fc = lvl(C, now, 900);
+    ctx.beginPath(); ctx.arc(cx, cy, 0.075 * R, 0, TAU);
+    ctx.fillStyle = 'rgba(243,201,124,' + (0.25 * fc) + ')'; ctx.fill();
+    ctx.strokeStyle = 'rgba(243,201,124,' + (0.2 + 0.5 * fc) + ')'; ctx.stroke();
+
+    // threads
+    edges.forEach(function (e) {
+      var both = Math.min(lvl(e.a, now, 700), lvl(e.b, now, 700));
+      ctx.beginPath();
+      if (e.type === 'arc') ctx.arc(cx, cy, e.r * R, e.a0, e.a0 + e.d, e.d < 0);
+      else { ctx.moveTo(X(e.p[0]), Y(e.p[1])); ctx.lineTo(X(e.q[0]), Y(e.q[1])); }
+      ctx.strokeStyle = both ? 'rgba(243,201,124,' + (0.12 + 0.26 * both) + ')' : 'rgba(184,197,181,0.13)';
+      ctx.lineWidth = 0.8; ctx.stroke();
+    });
+
+    // kolam dots
+    var da = 0.3 + 0.5 * prog;
+    ctx.fillStyle = 'rgba(250,247,242,' + da + ')';
+    for (j = 0; j < 8; j++) { var q1 = P(0.12, TOP + TAU / 16 + j * TAU / 8); ctx.beginPath(); ctx.arc(q1[0], q1[1], 1.4, 0, TAU); ctx.fill(); }
+    for (k = 0; k < 16; k++) {
+      var q2 = P(0.66, TOP + TAU / 32 + k * TAU / 16), q3 = P(0.995, TOP + k * TAU / 16);
+      ctx.beginPath(); ctx.arc(q2[0], q2[1], 1.5, 0, TAU); ctx.fill();
+      ctx.beginPath(); ctx.arc(q3[0], q3[1], 1.7, 0, TAU); ctx.fill();
+    }
+
+    // sparks travelling along threads
+    ctx.globalCompositeOperation = 'lighter';
+    sparks = sparks.filter(function (sp) {
+      var u = (now - sp.t0) / sp.dur, T = nodes[sp.to];
+      if (u >= 1 || (T.lit && T.litAt < now - 30)) return false;
+      for (var tail = 0; tail < 6; tail++) {
+        var uu = u - tail * 0.035; if (uu < 0) break;
+        var pt = edgePt(sp.e, sp.dir > 0 ? uu : 1 - uu);
+        ctx.beginPath(); ctx.arc(X(pt[0]), Y(pt[1]), 2.4 - tail * 0.3, 0, TAU);
+        ctx.fillStyle = 'rgba(255,' + (226 - tail * 14) + ',' + (160 - tail * 18) + ',' + (0.9 - tail * 0.14) + ')';
+        ctx.fill();
+      }
+      return true;
+    });
+    ctx.globalCompositeOperation = 'source-over';
+
+    // lamps
+    for (n = 0; n < nodes.length; n++) drawDiya(nodes[n], n, now);
+  }
+
+  function loop(now) { step(now); draw(now); requestAnimationFrame(loop); }
+
+  /* ---------- input ---------- */
+  function nodeAt(ev) {
+    var b = cv.getBoundingClientRect(), x = ev.clientX - b.left, y = ev.clientY - b.top;
+    var best = -1, bd = Math.max(22, s * 2.4);
+    nodes.forEach(function (N, n) {
+      var p = P(N.r, N.a), d = Math.hypot(p[0] - x, p[1] - y + s * 0.3);
+      if (d < bd) { bd = d; best = n; }
+    });
+    return best;
+  }
+  cv.addEventListener('pointermove', function (ev) {
+    var n = nodeAt(ev);
+    hover = (n >= 0 && !nodes[n].lit) ? n : -1;
+    cv.classList.toggle('pick', hover >= 0);
+  });
+  cv.addEventListener('pointerleave', function () { hover = -1; cv.classList.remove('pick'); });
+  cv.addEventListener('click', function (ev) {
+    var n = nodeAt(ev);
+    if (n >= 0 && !nodes[n].lit) start(n);
+  });
+  cv.addEventListener('keydown', function (ev) {
+    if (ev.key === 'Enter' || ev.key === ' ') {
+      ev.preventDefault();
+      var n = nodes[C].lit ? nodes.findIndex(function (N) { return !N.lit; }) : C;
+      if (n >= 0) start(n);
+    }
+  });
+
+  again.addEventListener('click', function () {
+    timers.forEach(clearTimeout); timers = [];
+    nodes.forEach(function (N) { N.lit = false; N.litAt = 0; N.eta = Infinity; });
+    sparks = []; litCount = 0; first = -1; doneAt = 0;
+    countEl.textContent = '0';
+    msg.classList.remove('on');
+    ledger.classList.remove('on');
+    hint.classList.remove('gone');
+    window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+  });
+
+  window.addEventListener('resize', resize);
+  resize();
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
